@@ -5,7 +5,7 @@ metadata:
 spec:
   selector:
     app: kubeforge
-    version: blue   # switch this to green later
+    version: blue   # default starts on blue
   ports:
     - protocol: TCP
       port: 80
