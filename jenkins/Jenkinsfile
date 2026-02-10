@@ -1,89 +1,82 @@
 pipeline {
-    agent any
+  agent any
 
-    environment {
-        AWS_REGION = "ap-south-1"
-        ECR_REPO   = "717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app"
-        IMAGE_TAG = "${BUILD_NUMBER}"
-        APP_NAME  = "kubeforge"
+  environment {
+    AWS_REGION = "ap-south-1"
+    ECR_REPO = "717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app"
+    IMAGE_TAG = "${BUILD_NUMBER}"
+    APP_NAME = "kubeforge"
+  }
+
+  stages {
+
+    stage("Checkout") {
+      steps {
+        checkout scm
+      }
     }
 
-    stages {
-
-        stage("Checkout Code") {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage("Build Docker Image") {
-            steps {
-                sh """
-                docker build -t ${APP_NAME}:${IMAGE_TAG} ./app
-                """
-            }
-        }
-
-        stage("Login to AWS ECR") {
-            steps {
-                sh """
-                aws ecr get-login-password --region ${AWS_REGION} | \
-                docker login --username AWS --password-stdin ${ECR_REPO}
-                """
-            }
-        }
-
-        stage("Tag & Push Image") {
-            steps {
-                sh """
-                docker tag ${APP_NAME}:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}
-                docker push ${ECR_REPO}:${IMAGE_TAG}
-                """
-            }
-        }
-
-        stage("Deploy GREEN Version") {
-            steps {
-                sh """
-                sed -i "s|IMAGE_TAG|${IMAGE_TAG}|g" k8s/green/deployment.yaml
-                kubectl apply -f k8s/green/
-                """
-            }
-        }
-
-        stage("Wait for GREEN to be Healthy") {
-            steps {
-                sh """
-                kubectl rollout status deployment/kubeforge-green --timeout=180s
-                """
-            }
-        }
-
-        stage("Switch Traffic to GREEN") {
-            steps {
-                sh """
-                kubectl apply -f k8s/Service/service.yaml
-
-                kubectl patch service kubeforge-service \
-                -p '{"spec":{"selector":{"app":"kubeforge","version":"green"}}}'
-                """
-            }
-        }
+    stage("Build Image") {
+      steps {
+        sh "docker build -t ${APP_NAME}:${IMAGE_TAG} ./app"
+      }
     }
 
-    post {
-
-        success {
-            echo "✅ Deployment successful — traffic now on GREEN!"
-        }
-
-        failure {
-            echo "❌ Deployment failed — rolling back to BLUE"
-
-            sh """
-            kubectl patch service kubeforge-service \
-            -p '{"spec":{"selector":{"app":"kubeforge","version":"blue"}}}'
-            """
-        }
+    stage("Login to ECR") {
+      steps {
+        sh """
+        aws ecr get-login-password --region ${AWS_REGION} |
+        docker login --username AWS --password-stdin ${ECR_REPO}
+        """
+      }
     }
+
+    stage("Push Image") {
+      steps {
+        sh """
+        docker tag ${APP_NAME}:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}
+        docker push ${ECR_REPO}:${IMAGE_TAG}
+        """
+      }
+    }
+
+    stage("Deploy GREEN") {
+      steps {
+        sh """
+        sed -i 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/green/deployment.yaml
+        kubectl apply -f k8s/green/
+        """
+      }
+    }
+
+    stage("Wait for GREEN Health") {
+      steps {
+        sh "kubectl rollout status deployment/kubeforge-green --timeout=180s"
+      }
+    }
+
+    stage("Switch Traffic to GREEN") {
+      steps {
+        sh """
+        kubectl patch service kubeforge-service \
+        -p '{"spec":{"selector":{"app":"kubeforge","version":"green"}}}'
+        """
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "✅ GREEN deployment live with healthy pods"
+    }
+
+    failure {
+      echo "❌ Deployment failed — rolling back to BLUE"
+
+      sh """
+      kubectl patch service kubeforge-service \
+      -p '{"spec":{"selector":{"app":"kubeforge","version":"blue"}}}'
+      """
+    }
+  }
 }

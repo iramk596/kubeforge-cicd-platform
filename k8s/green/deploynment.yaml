@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: kubeforge-green
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: kubeforge
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: kubeforge-app
-          image: 717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app:IMAGE_TAG
+          image: 717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app:1
           ports:
             - containerPort: 3000
 

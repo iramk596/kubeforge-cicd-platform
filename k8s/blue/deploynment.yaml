@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: kubeforge-blue
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: kubeforge
@@ -15,7 +15,24 @@ spec:
         version: blue
     spec:
       containers:
-      - name: kubeforge-app
-        image: 717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app:latest
-        ports:
-        - containerPort: 3000
+        - name: kubeforge-app
+          image: 717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app@sha256:0b4fc733f6fa6d57a04af40a7f1db09efe7df77d2ceb9393185c3e4366138e53
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+
+          # ✅ Health Checks (Production style)
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5

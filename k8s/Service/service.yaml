@@ -3,11 +3,12 @@ kind: Service
 metadata:
   name: kubeforge-service
 spec:
+  type: NodePort
   selector:
     app: kubeforge
-    version: blue   # default starts on blue
+    version: blue
   ports:
     - protocol: TCP
       port: 80
       targetPort: 3000
-  type: ClusterIP
+      nodePort: 30080
