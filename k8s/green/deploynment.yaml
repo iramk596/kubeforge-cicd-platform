@@ -16,11 +16,10 @@ spec:
     spec:
       containers:
         - name: kubeforge-app
-          image: 717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app:1
+          image: 717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app:latest
+          imagePullPolicy: Always   # ✅ ADD THIS
           ports:
             - containerPort: 3000
-
-          # ✅ Health Checks (Production style)
 
           livenessProbe:
             httpGet:
