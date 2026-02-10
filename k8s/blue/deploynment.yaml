@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: kubeforge-app
-          image: 717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app@sha256:0b4fc733f6fa6d57a04af40a7f1db09efe7df77d2ceb9393185c3e4366138e53
+          image: 717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
