@@ -42,6 +42,8 @@ KubeForge implements a Service-based Blue-Green deployment model.
 Both deployments run simultaneously within the cluster.
 
 ---
+<img width="1965" height="753" alt="Screenshot (2679)" src="https://github.com/user-attachments/assets/a2cc7c87-d020-4c41-ba86-e209c1b6eb57" />
+
 
 ## Infrastructure as Code (Terraform)
 
@@ -53,8 +55,7 @@ terraform destroy
 ```
 
 ---
-<img width="2560" height="1600" alt="Screenshot (2646)" src="https://github.com/user-attachments/assets/5732bd89-5dc3-40e6-8ff2-5bf987fdbfca" />
-
+<img width="2560" height="1453" alt="Screenshot (2646)" src="https://github.com/user-attachments/assets/01ee665b-6db8-4957-a8e8-7909296521aa" />
 
 ## CI/CD Pipeline (Jenkins)
 
@@ -68,14 +69,14 @@ Pipeline stages include:
 4. Traffic switch  
 
 ---
-<img width="2559" height="1457" alt="Screenshot 2026-02-11 104225" src="https://github.com/user-attachments/assets/af98d484-36c5-4ae4-bf02-09f8206b8b53" />
+<img width="2559" height="1378" alt="Screenshot 2026-02-11 104225" src="https://github.com/user-attachments/assets/8f1ceb4b-c177-4696-b202-c76aa697b92c" />
 
 ## Monitoring and Observability
 
 ### Prometheus
 
 - Scrapes cluster and pod metrics
-  <img width="2559" height="1453" alt="Screenshot 2026-02-11 161051" src="https://github.com/user-attachments/assets/602691ad-0503-4d01-a0e0-79b24577bc7f" />
+<img width="2559" height="1369" alt="Screenshot 2026-02-11 161051" src="https://github.com/user-attachments/assets/937cd642-7691-4747-9cd8-21925c3521d4" />
 
 ### Grafana
 
