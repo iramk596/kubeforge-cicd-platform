@@ -22,14 +22,13 @@ pipeline {
       }
     }
 
-    stage("Login to ECR") {
-      steps {
-        bat """
-        aws ecr get-login-password --region ${AWS_REGION} |
-        docker login --username AWS --password-stdin ${ECR_REPO}
-        """
-      }
+    stage('Login to ECR') {
+    steps {
+        bat '''
+        for /f "delims=" %%p in ('aws ecr get-login-password --region ap-south-1') do docker login --username AWS --password %%p 717562719168.dkr.ecr.ap-south-1.amazonaws.com
+        '''
     }
+}
 
     stage("P  bat Image") {
       steps {
