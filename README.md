@@ -84,6 +84,64 @@ Pipeline stages include:
 
 ---
 
+## Validation Artifacts
+
+The system was validated using reproducible CLI and runtime outputs to ensure architectural correctness and deployment safety.
+
+The following artifacts were captured:
+
+- Terraform `apply` and `destroy` execution logs  
+- `kubectl get nodes` and `kubectl get pods` outputs  
+- Successful Jenkins pipeline execution results  
+- Docker image build and tagging logs  
+- Prometheus and Grafana running pod verification  
+- Grafana dashboard access via `kubectl port-forward`  
+
+These validation steps provide command-line–level proof of functionality across infrastructure, CI/CD, deployment, and monitoring layers.
+
+---
+
+## Testing and Release Strategy
+
+The deployment workflow prioritizes release safety and rollback control.
+
+Key safeguards include:
+
+- CI pipeline failures automatically block deployment  
+- Green deployment is validated before traffic switching  
+- Blue deployment remains active until validation succeeds  
+- Traffic switching occurs via Kubernetes Service selector update  
+- Rollback is instantaneous by reverting the Service selector  
+
+No in-place updates are performed, ensuring release isolation and zero-downtime transitions.
+
+---
+
+## How to Run
+
+1. Provision infrastructure using Terraform  
+2. Configure `kubeconfig` for the EKS cluster  
+3. Trigger the Jenkins CI/CD pipeline  
+4. Deploy Blue and Green application versions  
+5. Validate the Green deployment  
+6. Switch traffic using Kubernetes Service selector  
+7. Deploy monitoring stack (Prometheus and Grafana)  
+8. Capture validation outputs if required  
+9. Destroy infrastructure to prevent unnecessary costs  
+
+---
+
+## Project Status
+
+- Infrastructure successfully provisioned using Terraform  
+- CI/CD pipeline implemented and validated using Jenkins  
+- Docker image build and versioning confirmed  
+- Blue-Green deployment model tested and verified  
+- Monitoring stack deployed and validated  
+- Infrastructure teardown completed to maintain cost efficiency  
+
+---
+
 ## Key Learnings
 
 - End-to-end CI/CD system design  
