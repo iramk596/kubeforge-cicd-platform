@@ -43,7 +43,7 @@ pipeline {
         stage('Deploy GREEN') {
             steps {
                 bat '''
-                kubectl apply -f k8s/green-deployment.yaml
+                kubectl apply -f k8s/green/deployment.yaml
                 kubectl rollout restart deployment kubeforge-green
                 '''
             }
