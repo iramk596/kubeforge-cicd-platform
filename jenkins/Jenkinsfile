@@ -11,7 +11,11 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[url: 'https://github.com/iramk596/kubeforge-cicd-platform.git']]
+                ])
             }
         }
 
@@ -37,6 +41,16 @@ pipeline {
                 docker tag %IMAGE_NAME%:latest %ECR_REPO%:latest
                 docker push %ECR_REPO%:latest
                 '''
+            }
+        }
+        stage('Debug Workspace') {
+            steps {
+                bat 'echo ===== ROOT ====='
+                bat 'dir'
+                bat 'echo ===== K8S ====='
+                bat 'dir k8s'
+                bat 'echo ===== GREEN ====='
+                bat 'dir k8s\\green'
             }
         }
 
