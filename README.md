@@ -69,6 +69,8 @@ Pipeline stages include:
 4. Traffic switch  
 
 ---
+<img width="2560" height="1453" alt="Screenshot (2647)" src="https://github.com/user-attachments/assets/37be5fdb-58b7-474d-ba41-05d592edc638" />
+
 <img width="2559" height="1378" alt="Screenshot 2026-02-11 104225" src="https://github.com/user-attachments/assets/8f1ceb4b-c177-4696-b202-c76aa697b92c" />
 
 ## Monitoring and Observability
