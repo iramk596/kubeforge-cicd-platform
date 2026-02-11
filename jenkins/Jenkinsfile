@@ -18,31 +18,31 @@ pipeline {
 
     stage("Build Image") {
       steps {
-        sh "docker build -t ${APP_NAME}:${IMAGE_TAG} ./app"
+        bat "docker build -t ${APP_NAME}:${IMAGE_TAG} ./app"
       }
     }
 
     stage("Login to ECR") {
       steps {
-        sh """
+        bat """
         aws ecr get-login-password --region ${AWS_REGION} |
         docker login --username AWS --password-stdin ${ECR_REPO}
         """
       }
     }
 
-    stage("Push Image") {
+    stage("P  bat Image") {
       steps {
-        sh """
+        bat """
         docker tag ${APP_NAME}:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}
-        docker push ${ECR_REPO}:${IMAGE_TAG}
+        docker p  bat ${ECR_REPO}:${IMAGE_TAG}
         """
       }
     }
 
     stage("Deploy GREEN") {
       steps {
-        sh """
+        bat """
         sed -i 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/green/deployment.yaml
         kubectl apply -f k8s/green/
         """
@@ -51,13 +51,13 @@ pipeline {
 
     stage("Wait for GREEN Health") {
       steps {
-        sh "kubectl rollout status deployment/kubeforge-green --timeout=180s"
+        bat "kubectl rollout status deployment/kubeforge-green --timeout=180s"
       }
     }
 
     stage("Switch Traffic to GREEN") {
       steps {
-        sh """
+        bat """
         kubectl patch service kubeforge-service \
         -p '{"spec":{"selector":{"app":"kubeforge","version":"green"}}}'
         """
@@ -73,7 +73,7 @@ pipeline {
     failure {
       echo "❌ Deployment failed — rolling back to BLUE"
 
-      sh """
+      bat """
       kubectl patch service kubeforge-service \
       -p '{"spec":{"selector":{"app":"kubeforge","version":"blue"}}}'
       """
