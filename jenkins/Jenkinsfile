@@ -1,81 +1,81 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    AWS_REGION = "ap-south-1"
-    ECR_REPO = "717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app"
-    IMAGE_TAG = "${BUILD_NUMBER}"
-    APP_NAME = "kubeforge"
-  }
-
-  stages {
-
-    stage("Checkout") {
-      steps {
-        checkout scm
-      }
+    environment {
+        AWS_REGION = "ap-south-1"
+        ECR_REPO   = "717562719168.dkr.ecr.ap-south-1.amazonaws.com/kubeforge-app"
+        IMAGE_NAME = "kubeforge"
     }
 
-    stage("Build Image") {
-      steps {
-        bat "docker build -t ${APP_NAME}:${IMAGE_TAG} ./app"
-      }
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                bat '''
+                docker build -t %IMAGE_NAME%:latest ./app
+                '''
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                bat '''
+                for /f "delims=" %%p in ('aws ecr get-login-password --region %AWS_REGION%') do docker login --username AWS --password %%p 717562719168.dkr.ecr.ap-south-1.amazonaws.com
+                '''
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                bat '''
+                docker tag %IMAGE_NAME%:latest %ECR_REPO%:latest
+                docker push %ECR_REPO%:latest
+                '''
+            }
+        }
+
+        stage('Deploy GREEN') {
+            steps {
+                bat '''
+                kubectl apply -f k8s/green-deployment.yaml
+                kubectl rollout restart deployment kubeforge-green
+                '''
+            }
+        }
+
+        stage('Wait for GREEN Health') {
+            steps {
+                bat '''
+                kubectl rollout status deployment kubeforge-green --timeout=120s
+                '''
+            }
+        }
+
+        stage('Switch Traffic to GREEN') {
+            steps {
+                bat '''
+                kubectl patch service kubeforge-service --type merge -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"kubeforge\\",\\"version\\":\\"green\\"}}}"
+                '''
+            }
+        }
     }
 
-    stage('Login to ECR') {
-    steps {
-        bat '''
-        for /f "delims=" %%p in ('aws ecr get-login-password --region ap-south-1') do docker login --username AWS --password %%p 717562719168.dkr.ecr.ap-south-1.amazonaws.com
-        '''
-    }
-}
+    post {
+        failure {
+            echo '❌ Deployment failed — rolling back to BLUE'
+            bat '''
+            kubectl patch service kubeforge-service --type merge -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"kubeforge\\",\\"version\\":\\"blue\\"}}}"
+            '''
+        }
 
-    stage("P  bat Image") {
-      steps {
-        bat """
-        docker tag ${APP_NAME}:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}
-        docker p  bat ${ECR_REPO}:${IMAGE_TAG}
-        """
-      }
+        success {
+            echo '✅ Deployment Successful — GREEN is live!'
+        }
     }
-
-    stage("Deploy GREEN") {
-      steps {
-        bat """
-        sed -i 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/green/deployment.yaml
-        kubectl apply -f k8s/green/
-        """
-      }
-    }
-
-    stage("Wait for GREEN Health") {
-      steps {
-        bat "kubectl rollout status deployment/kubeforge-green --timeout=180s"
-      }
-    }
-
-    stage("Switch Traffic to GREEN") {
-      steps {
-        bat """
-        kubectl patch service kubeforge-service \
-        -p '{"spec":{"selector":{"app":"kubeforge","version":"green"}}}'
-        """
-      }
-    }
-  }
-
-  post {
-    success {
-      echo "✅ GREEN deployment live with healthy pods"
-    }
-
-    failure {
-      echo "❌ Deployment failed — rolling back to BLUE"
-
-      bat """
-      kubectl patch service kubeforge-service \
-      -p '{"spec":{"selector":{"app":"kubeforge","version":"blue"}}}'
-      """
-    }
-  }
 }
