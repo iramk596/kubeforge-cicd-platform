@@ -3,6 +3,7 @@
 KubeForge is an end-to-end CI/CD platform built to simulate real-world production deployment workflows on AWS. It automates the build, validation, and deployment of containerized applications using a Blue-Green deployment strategy on Kubernetes.
 
 ---
+<img width="2337" height="1009" alt="Screenshot (2677)" src="https://github.com/user-attachments/assets/69c64b89-7396-4cb2-b0c2-4ea9da074f6d" />
 
 ## Project Objective
 
