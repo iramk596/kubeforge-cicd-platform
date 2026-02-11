@@ -53,6 +53,8 @@ terraform destroy
 ```
 
 ---
+<img width="2560" height="1600" alt="Screenshot (2646)" src="https://github.com/user-attachments/assets/5732bd89-5dc3-40e6-8ff2-5bf987fdbfca" />
+
 
 ## CI/CD Pipeline (Jenkins)
 
@@ -66,12 +68,14 @@ Pipeline stages include:
 4. Traffic switch  
 
 ---
+<img width="2559" height="1457" alt="Screenshot 2026-02-11 104225" src="https://github.com/user-attachments/assets/af98d484-36c5-4ae4-bf02-09f8206b8b53" />
 
 ## Monitoring and Observability
 
 ### Prometheus
 
-- Scrapes cluster and pod metrics  
+- Scrapes cluster and pod metrics
+  <img width="2559" height="1453" alt="Screenshot 2026-02-11 161051" src="https://github.com/user-attachments/assets/602691ad-0503-4d01-a0e0-79b24577bc7f" />
 
 ### Grafana
 
